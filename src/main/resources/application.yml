@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: testonemore
+  datasource:
+    url: jdbc:mysql://192.168.15.78:3306/testonetomore?useUnicode=true&characterEncoding=utf-8&useSSL=false&&serverTimezone=GMT
+    username: root
+    password: root
+#tomcat . undertow
+server:
+  port: 8083
+mybatis:
+  mapperLocations: classpath*:/mapper/*.xml
+  configuration:
+    mapUnderscoreToCamelCase: true #开启驼峰转换
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#logback  info
+logging:
+  level:
+    org.apache.ibatis: debug
+    com.hand.train1907.mapper: debug

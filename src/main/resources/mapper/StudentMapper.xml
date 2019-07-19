@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hand.testonetomore.mapper.StudentMapper">
+    
+    <resultMap id="major" type="com.hand.testonetomore.domain.Major">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="majorName" property="majorName" jdbcType="VARCHAR"/>
+        <result column="personNum" property="personNum" jdbcType="INTEGER"/>
+        <result column="turtor" property="turtor" jdbcType="VARCHAR"/>
+        <collection property="students" javaType="java.util.ArrayList" ofType="com.hand.testonetomore.domain.Stuinfo">
+            <id column="sno" property="sno" jdbcType="VARCHAR"/>
+            <result column="sname" property="sname" jdbcType="VARCHAR"/>
+            <result column="gender" property="gender" jdbcType="INTEGER"/>
+            <result column="birthday" property="birthday" jdbcType="DATE"/>
+            <result column="majorId" property="majorId" jdbcType="INTEGER"/>
+            <result column="credit" property="credit" jdbcType="INTEGER"/>
+            <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="student" type="com.hand.testonetomore.domain.Stuinfo">
+            <id column="sno" property="sno" jdbcType="VARCHAR"/>
+            <result column="sname" property="sname" jdbcType="VARCHAR"/>
+            <result column="gender" property="gender" jdbcType="INTEGER"/>
+            <result column="majorId" property="majorId" jdbcType="INTEGER"/>
+            <result column="birthday" property="birthday" jdbcType="DATE"/>
+            <result column="credit" property="credit" jdbcType="INTEGER"/>
+            <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <association property="major" javaType="com.hand.testonetomore.domain.Major" >
+            <id column="id" property="id" jdbcType="INTEGER"/>
+            <result column="majorName" property="majorName" jdbcType="VARCHAR"/>
+            <result column="personNum" property="personNum" jdbcType="INTEGER"/>
+            <result column="turtor" property="turtor" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+        <sql id="basecolumn">
+      s.sno,
+      s.sname,
+      s.gender,
+      s.birthday,
+      s.majorId,
+      s.credit,
+      s.remark,
+      r.id,
+      r.majorName,
+      r.personNum,
+      r.turtor
+       </sql>
+
+    <select id="queryStudent"   parameterType="java.lang.String" resultMap="student">
+        select  <include refid="basecolumn"/>
+          from major r,stuinfo s
+		WHERE r.id=s.majorId
+		AND  s.sno=#{sno}
+    </select>
+
+    <select id="queryMajor"   parameterType="java.lang.Integer" resultMap="major">
+        select <include refid="basecolumn"/>
+        from major r,stuinfo s
+        WHERE r.id=s.majorId
+        AND  r.id=#{id}
+    </select>
+
+    <select id="queryAll" resultMap="student">
+        select <include refid="basecolumn"/> from  stuinfo s,major r where r.id=s.majorId
+    </select>
+
+    <insert id="insertStudent"  parameterType="com.hand.testonetomore.domain.Stuinfo">
+    insert into stuinfo VALUES(#{sno},#{sname},#{birthday},#{gender},#{majorId},#{credit},#{remark});
+    </insert>
+
+    <insert id="insertListStudent" parameterType="java.util.ArrayList">
+        insert into stuinfo
+        VALUES
+        <foreach collection="list" item="stuinfo"  separator=",">
+        (#{stuinfo.sno},#{stuinfo.sname},#{stuinfo.birthday},#{stuinfo.gender},#{stuinfo.majorId},#{stuinfo.credit},#{stuinfo.remark})
+        </foreach>
+
+    </insert>
+
+    <update id="updateStudent" parameterType="java.util.ArrayList">
+      update  stuinfo
+        <foreach collection="list" item="stuinfo"  separator=",">
+            <set>
+    <if test="sname!=null and sname!='' ">
+			sname=#{stuinfo.sname},
+    </if>
+        <if test="birthday!=null and birthday!='' ">
+			birthday=#{stuinfo.birthday},
+        </if>
+        <if test="gender!=null and gender!='' ">
+			gender=#{stuinfo.gender},
+        </if>
+        <if test="majorId!=null and majorId!='' ">
+			majorId=#{stuinfo.majorId},
+        </if>
+        <if test="credit!=null and credit!='' ">
+			credit=#{stuinfo.credit},
+        </if>
+        <if test="remark!=null and remark!='' ">
+			remark=#{stuinfo.remark},
+        </if>
+            </set>
+        </foreach>
+
+		where  sno=#{stuinfo.sno}
+    </update>
+
+    <update id="updateListStudent" parameterType="java.util.ArrayList">
+        update stuinfo
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="sname =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.sname != null">
+                        when sno=#{item.sno} then #{item.sname}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="birthday =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.birthday != null">
+                        when sno=#{item.sno} then #{item.birthday}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="gender =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.gender != null">
+                        when sno=#{item.sno} then #{item.gender}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="majorId =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.majorId != null">
+                        when sno=#{item.sno} then #{item.majorId}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="credit =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.credit != null">
+                        when sno=#{item.sno} then #{item.credit}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="remark =case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.remark != null">
+                        when sno=#{item.sno} then #{item.remark}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+
+        where
+            sno in
+            <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+                #{item.sno}
+            </foreach>
+    </update>
+
+    <delete id="deleteStudent" parameterType="java.lang.String">
+        delete  from stuinfo
+          where  sno=#{sno}
+    </delete>
+
+    <delete id="deleteListStudent" parameterType="java.util.ArrayList" >
+        delete  from stuinfo
+          where  sno in
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="updateGender"  parameterType="java.lang.Integer" >
+        update  stuinfo set gender=#{gender} where sno="4"
+    </update>
+    <update id="updateSname" parameterType="java.lang.String" >
+        update  stuinfo set sname=#{sname} where sno="4"
+    </update>
+</mapper>
